@@ -1,0 +1,724 @@
+From ce3a4e86dca5ce34624af9d4eee9116b3d428004 Mon Sep 17 00:00:00 2001
+From: Langhalsdino <github@tausch.me>
+Date: Tue, 7 Apr 2020 22:56:53 +0200
+Subject: [PATCH 1/2] added apic cameramods
+
+---
+ nvidia/drivers/media/i2c/imx219_mode_tbls.h   | 349 +++++++++++-------
+ .../tegra210-camera-rbpcv2-imx219.dtsi        | 100 +++--
+ 2 files changed, 281 insertions(+), 168 deletions(-)
+
+diff --git a/nvidia/drivers/media/i2c/imx219_mode_tbls.h b/nvidia/drivers/media/i2c/imx219_mode_tbls.h
+index ba46741..a6edd7b 100644
+--- a/nvidia/drivers/media/i2c/imx219_mode_tbls.h
++++ b/nvidia/drivers/media/i2c/imx219_mode_tbls.h
+@@ -67,89 +67,144 @@ static imx219_reg imx219_mode_common[] = {
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+-static imx219_reg imx219_mode_3264x2464_21fps[] = {
++static imx219_reg imx219_mode_3280x1560_40fps[] = {
++	/* capture settings */
++	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
++	{0x015A, 0x06}, /* COARSE_INTEG_TIME[15:8] */
++	{0x015B, 0x91}, /* COARSE_INTEG_TIME[7:0] */
++	/* format settings */
++	{0x0160, 0x06}, /* FRM_LENGTH[15:8] */
++	{0x0161, 0x95}, /* FRM_LENGTH[7:0] 1685 ~40fps */
++	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
++	{0x0163, 0xE8}, /* LINE_LENGTH[7:0] = 3560 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
++	{0x0169, 0x00},
++	{0x016A, 0x06}, /* y_end_addr = 1559 */
++	{0x016B, 0x17},
++	{0x016C, 0x0C}, /* x_output_size = 3280 */
++	{0x016D, 0xD0},
++	{0x016E, 0x06}, /* y_output_size = 1560 */
++	{0x016F, 0x18},
++	{0x0170, 0x01},
++	{0x0171, 0x01},
++	{0x0174, 0x00}, /* BINNING_MODE_H_A */
++	{0x0175, 0x00}, /* BINNING_MODE_V_A */
++	{0x018C, 0x0A},
++	{0x018D, 0x0A},
++	{0x0264, 0x00}, /* Frame Bank B */
++	{0x0265, 0x08},
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
++	/* clock dividers */
++	{0x0301, 0x05},
++	{0x0303, 0x01},
++	{0x0304, 0x03},
++	{0x0305, 0x03},
++	{0x0306, 0x00},
++	{0x0307, 0x4B},
++	{0x0309, 0x0A},
++	{0x030B, 0x01},
++	{0x030C, 0x00},
++	{0x030D, 0x96},
++	{IMX219_TABLE_END, 0x00}
++};
++
++static imx219_reg imx219_mode_3280x2464_40fps[] = {
+ 	/* capture settings */
+ 	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
+ 	{0x015A, 0x09}, /* COARSE_INTEG_TIME[15:8] */
+-	{0x015B, 0xbd}, /* COARSE_INTEG_TIME[7:0] */
++	{0x015B, 0xE1}, /* COARSE_INTEG_TIME[7:0] */
+ 	/* format settings */
+ 	{0x0160, 0x09}, /* FRM_LENGTH[15:8] */
+-	{0x0161, 0xC1}, /* FRM_LENGTH[7:0] */
++	{0x0161, 0xE5}, /* FRM_LENGTH[7:0] 2533 ~40fps */
+ 	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
+-	{0x0163, 0x78}, /* LINE_LENGTH[7:0] */
+-	{0x0164, 0x00},
+-	{0x0165, 0x08},
+-	{0x0166, 0x0C},
+-	{0x0167, 0xC7},
+-	{0x0168, 0x00},
++	{0x0163, 0xE8}, /* LINE_LENGTH[7:0] = 3560 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
+ 	{0x0169, 0x00},
+-	{0x016A, 0x09},
++	{0x016A, 0x09}, /* y_end_addr = 2463 */
+ 	{0x016B, 0x9F},
+-	{0x016C, 0x0C},
+-	{0x016D, 0xC0},
+-	{0x016E, 0x09},
++	{0x016C, 0x0C}, /* x_output_size = 3280 */
++	{0x016D, 0xD0},
++	{0x016E, 0x09}, /* y_output_size = 2464 */
+ 	{0x016F, 0xA0},
+ 	{0x0170, 0x01},
+ 	{0x0171, 0x01},
+-	{0x0174, 0x00},
+-	{0x0175, 0x00},
++	{0x0174, 0x00}, /* BINNING_MODE_H_A */
++	{0x0175, 0x00}, /* BINNING_MODE_V_A */
+ 	{0x018C, 0x0A},
+ 	{0x018D, 0x0A},
+-	{0x0264, 0x00},
++	{0x0264, 0x00}, /* Frame Bank B */
+ 	{0x0265, 0x08},
+-	{0x0266, 0x0C},
+-	{0x0267, 0xC7},
+-	{0x026C, 0x0C},
+-	{0x026D, 0xC0},
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
+ 	/* clock dividers */
+ 	{0x0301, 0x05},
+ 	{0x0303, 0x01},
+ 	{0x0304, 0x03},
+ 	{0x0305, 0x03},
+ 	{0x0306, 0x00},
+-	{0x0307, 0x39},
++	{0x0307, 0x72},
+ 	{0x0309, 0x0A},
+ 	{0x030B, 0x01},
+ 	{0x030C, 0x00},
+-	{0x030D, 0x72},
++	{0x030D, 0xE4},
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+-static imx219_reg imx219_mode_3264x1848_28fps[] = {
++// 1640x780 x2 binning @40fps
++static imx219_reg imx219_mode_1640x780_40fps[] = {
+ 	/* capture settings */
+ 	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
+-	{0x015A, 0x07}, /* COARSE_INTEG_TIME[15:8] */
+-	{0x015B, 0x55}, /* COARSE_INTEG_TIME[7:0] */
++	{0x015A, 0x05}, /* COARSE_INTEG_TIME[15:8] */
++	{0x015B, 0x0B}, /* COARSE_INTEG_TIME[7:0] */
+ 	/* format settings */
+-	{0x0160, 0x07}, /* FRM_LENGTH[15:8] */
+-	{0x0161, 0x59}, /* FRM_LENGTH[7:0] */
++	{0x0160, 0x05}, /* FRM_LENGTH[15:8] */
++	{0x0161, 0x0F}, /* FRM_LENGTH[7:0] for 40fps */
+ 	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
+-	{0x0163, 0x78}, /* LINE_LENGTH[7:0] */
+-	{0x0164, 0x00},
+-	{0x0165, 0x08},
+-	{0x0166, 0x0C},
+-	{0x0167, 0xC7},
+-	{0x0168, 0x01},
+-	{0x0169, 0x34},
+-	{0x016A, 0x08},
+-	{0x016B, 0x6B},
+-	{0x016C, 0x0C},
+-	{0x016D, 0xC0},
+-	{0x016E, 0x07},
+-	{0x016F, 0x38},
++	{0x0163, 0xC0}, /* LINE_LENGTH[7:0] = 3520 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
++	{0x0169, 0x00},
++	{0x016A, 0x06}, /* y_end_addr = 1559 */
++	{0x016B, 0x17},
++	{0x016C, 0x06}, /* x_output_size = 1640 */
++	{0x016D, 0x68},
++	{0x016E, 0x03}, /* y_output_size = 780 */
++	{0x016F, 0x0C},
+ 	{0x0170, 0x01},
+ 	{0x0171, 0x01},
+-	{0x0174, 0x00},
+-	{0x0175, 0x00},
++	{0x0174, 0x03}, /* BINNING_MODE_H_A */
++	{0x0175, 0x03}, /* BINNING_MODE_V_A */
+ 	{0x018C, 0x0A},
+ 	{0x018D, 0x0A},
+-	{0x0264, 0x00},
++	{0x0264, 0x00}, /* Frame Bank B */
+ 	{0x0265, 0x08},
+-	{0x0266, 0x0C},
+-	{0x0267, 0xC7},
+-	{0x026C, 0x0C},
+-	{0x026D, 0xC0},
+-	/* clocks dividers */
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
++	/* clock dividers */
+ 	{0x0301, 0x05},
+ 	{0x0303, 0x01},
+ 	{0x0304, 0x03},
+@@ -163,35 +218,44 @@ static imx219_reg imx219_mode_3264x1848_28fps[] = {
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+-static imx219_reg imx219_mode_1920x1080_30fps[] = {
++// 1640x780 x2 binning @35fps
++static imx219_reg imx219_mode_1640x780_35fps[] = {
+ 	/* capture settings */
+ 	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
+-	{0x015A, 0x06}, /* COARSE_INTEG_TIME[15:8] */
+-	{0x015B, 0xde}, /* COARSE_INTEG_TIME[7:0] */
++	{0x015A, 0x05}, /* COARSE_INTEG_TIME[15:8] */
++	{0x015B, 0xC4}, /* COARSE_INTEG_TIME[7:0] */
+ 	/* format settings */
+-	{0x0160, 0x06}, /* FRM_LENGTH[15:8] */
+-	{0x0161, 0xE2}, /* FRM_LENGTH[7:0] */
++	{0x0160, 0x05}, /* FRM_LENGTH[15:8] */
++	{0x0161, 0xC8}, /* FRM_LENGTH[7:0] for 35fps */
+ 	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
+-	{0x0163, 0x78}, /* LINE_LENGTH[7:0] */
+-	{0x0164, 0x02},
+-	{0x0165, 0xA8},
+-	{0x0166, 0x0A},
+-	{0x0167, 0x27},
+-	{0x0168, 0x02},
+-	{0x0169, 0xB4},
+-	{0x016A, 0x06},
+-	{0x016B, 0xEB},
+-	{0x016C, 0x07},
+-	{0x016D, 0x80},
+-	{0x016E, 0x04},
+-	{0x016F, 0x38},
++	{0x0163, 0xC0}, /* LINE_LENGTH[7:0] = 3520 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
++	{0x0169, 0x00},
++	{0x016A, 0x06}, /* y_end_addr = 1559 */
++	{0x016B, 0x17},
++	{0x016C, 0x06}, /* x_output_size = 1640 */
++	{0x016D, 0x68},
++	{0x016E, 0x03}, /* y_output_size = 780 */
++	{0x016F, 0x0C},
+ 	{0x0170, 0x01},
+ 	{0x0171, 0x01},
+-	{0x0174, 0x00},
+-	{0x0175, 0x00},
++	{0x0174, 0x03}, /* BINNING_MODE_H_A */
++	{0x0175, 0x03}, /* BINNING_MODE_V_A */
+ 	{0x018C, 0x0A},
+ 	{0x018D, 0x0A},
+-	/* clocks dividers */
++	{0x0264, 0x00}, /* Frame Bank B */
++	{0x0265, 0x08},
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
++	/* clock dividers */
+ 	{0x0301, 0x05},
+ 	{0x0303, 0x01},
+ 	{0x0304, 0x03},
+@@ -205,35 +269,44 @@ static imx219_reg imx219_mode_1920x1080_30fps[] = {
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+-static imx219_reg imx219_mode_1280x720_60fps[] = {
++// 1640x780 x2 binning @30fps
++static imx219_reg imx219_mode_1640x780_30fps[] = {
+ 	/* capture settings */
+ 	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
+-	{0x015A, 0x03}, /* COARSE_INTEG_TIME[15:8] */
+-	{0x015B, 0x6c}, /* COARSE_INTEG_TIME[7:0] */
++	{0x015A, 0x06}, /* COARSE_INTEG_TIME[15:8] */
++	{0x015B, 0xBB}, /* COARSE_INTEG_TIME[7:0] */
+ 	/* format settings */
+-	{0x0160, 0x03}, /* FRM_LENGTH[15:8] */
+-	{0x0161, 0x70}, /* FRM_LENGTH[7:0] */
++	{0x0160, 0x06}, /* FRM_LENGTH[15:8] */
++	{0x0161, 0xBF}, /* FRM_LENGTH[7:0] for 30fps */
+ 	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
+-	{0x0163, 0x78}, /* LINE_LENGTH[7:0] */
+-	{0x0164, 0x01},
+-	{0x0165, 0x68},
+-	{0x0166, 0x0B},
+-	{0x0167, 0x67},
+-	{0x0168, 0x02},
++	{0x0163, 0xC0}, /* LINE_LENGTH[7:0] = 3520 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
+ 	{0x0169, 0x00},
+-	{0x016A, 0x07},
+-	{0x016B, 0x9F},
+-	{0x016C, 0x05},
+-	{0x016D, 0x00},
+-	{0x016E, 0x02},
+-	{0x016F, 0xD0},
++	{0x016A, 0x06}, /* y_end_addr = 1559 */
++	{0x016B, 0x17},
++	{0x016C, 0x06}, /* x_output_size = 1640 */
++	{0x016D, 0x68},
++	{0x016E, 0x03}, /* y_output_size = 780 */
++	{0x016F, 0x0C},
+ 	{0x0170, 0x01},
+ 	{0x0171, 0x01},
+-	{0x0174, 0x01},
+-	{0x0175, 0x01},
++	{0x0174, 0x03}, /* BINNING_MODE_H_A */
++	{0x0175, 0x03}, /* BINNING_MODE_V_A */
+ 	{0x018C, 0x0A},
+ 	{0x018D, 0x0A},
+-	/* clocks dividers */
++	{0x0264, 0x00}, /* Frame Bank B */
++	{0x0265, 0x08},
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
++	/* clock dividers */
+ 	{0x0301, 0x05},
+ 	{0x0303, 0x01},
+ 	{0x0304, 0x03},
+@@ -247,54 +320,63 @@ static imx219_reg imx219_mode_1280x720_60fps[] = {
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+-static imx219_reg imx219_mode_1280x720_120fps[] = {
++static imx219_reg imx219_mode_1640x1232_40fps[] = {
+ 	/* capture settings */
+ 	{0x0157, 0x00}, /* ANALOG_GAIN_GLOBAL[7:0] */
+-	{0x015A, 0x01}, /* COARSE_INTEG_TIME[15:8] */
+-	{0x015B, 0x85}, /* COARSE_INTEG_TIME[7:0] */
++	{0x015A, 0x05}, /* COARSE_INTEG_TIME[15:8] */
++	{0x015B, 0x0B}, /* COARSE_INTEG_TIME[7:0] */
+ 	/* format settings */
+-	{0x0160, 0x01}, /* FRM_LENGTH[15:8] */
+-	{0x0161, 0x89}, /* FRM_LENGTH[7:0] */
++	{0x0160, 0x05}, /* FRM_LENGTH[15:8] */
++	{0x0161, 0x0F}, /* FRM_LENGTH[7:0] for 40fps */
+ 	{0x0162, 0x0D}, /* LINE_LENGTH[15:8] */
+-	{0x0163, 0xE8}, /* LINE_LENGTH[7:0] */
+-	{0x0164, 0x01},
+-	{0x0165, 0x68},
+-	{0x0166, 0x0B},
+-	{0x0167, 0x67},
+-	{0x0168, 0x02},
++	{0x0163, 0xC0}, /* LINE_LENGTH[7:0] = 3520 */
++	{0x0164, 0x00}, /* x_sta_addr = 0 */
++	{0x0165, 0x00},
++	{0x0166, 0x0C}, /* x_end_addr = 3279 */
++	{0x0167, 0xCF},
++	{0x0168, 0x00}, /* y_sta_addr = 0 */
+ 	{0x0169, 0x00},
+-	{0x016A, 0x07},
++	{0x016A, 0x09}, /* y_end_addr = 2463 */
+ 	{0x016B, 0x9F},
+-	{0x016C, 0x05},
+-	{0x016D, 0x00},
+-	{0x016E, 0x02},
++	{0x016C, 0x06}, /* x_output_size = 1640 = 3280/2 */
++	{0x016D, 0x68},
++	{0x016E, 0x04}, /* y_output_size = 1232 = 2464/2 */
+ 	{0x016F, 0xD0},
+ 	{0x0170, 0x01},
+ 	{0x0171, 0x01},
+-	{0x0174, 0x03},
+-	{0x0175, 0x03},
++	{0x0174, 0x03}, /* BINNING_MODE_H_A */
++	{0x0175, 0x03}, /* BINNING_MODE_V_A */
+ 	{0x018C, 0x0A},
+ 	{0x018D, 0x0A},
+-	/* clocks dividers */
++	{0x0264, 0x00}, /* Frame Bank B */
++	{0x0265, 0x08},
++	{0x0266, 0x06},
++	{0x0267, 0x6F},
++	{0x026C, 0x06},
++	{0x026D, 0x68},
++	{0x026E, 0x04},
++	{0x026F, 0xD0},
++	/* clock dividers */
+ 	{0x0301, 0x05},
+ 	{0x0303, 0x01},
+ 	{0x0304, 0x03},
+ 	{0x0305, 0x03},
+ 	{0x0306, 0x00},
+-	{0x0307, 0x35},
++	{0x0307, 0x39},
+ 	{0x0309, 0x0A},
+ 	{0x030B, 0x01},
+ 	{0x030C, 0x00},
+-	{0x030D, 0x66},
++	{0x030D, 0x72},
+ 	{IMX219_TABLE_END, 0x00}
+ };
+ 
+ enum {
+-	IMX219_MODE_3264x2464_21FPS,
+-	IMX219_MODE_3264x1848_28FPS,
+-	IMX219_MODE_1920x1080_30FPS,
+-	IMX219_MODE_1280x720_60FPS,
+-	IMX219_MODE_1280x720_120FPS,
++	IMX219_MODE_3280x1560_40FPS,
++	IMX219_MODE_3280x2464_40FPS,
++	IMX219_MODE_1640x780_40FPS,
++	IMX219_MODE_1640x780_35FPS,
++	IMX219_MODE_1640x780_30FPS,
++	IMX219_MODE_1640x1232_40FPS,
+ 
+ 	IMX219_MODE_COMMON,
+ 	IMX219_START_STREAM,
+@@ -302,35 +384,28 @@ enum {
+ };
+ 
+ static imx219_reg *mode_table[] = {
+-	[IMX219_MODE_3264x2464_21FPS] = imx219_mode_3264x2464_21fps,
+-	[IMX219_MODE_3264x1848_28FPS] = imx219_mode_3264x1848_28fps,
+-	[IMX219_MODE_1920x1080_30FPS] = imx219_mode_1920x1080_30fps,
+-	[IMX219_MODE_1280x720_60FPS] = imx219_mode_1280x720_60fps,
+-	[IMX219_MODE_1280x720_120FPS] = imx219_mode_1280x720_120fps,
++	[IMX219_MODE_3280x1560_40FPS]  = imx219_mode_3280x1560_40fps,
++	[IMX219_MODE_3280x2464_40FPS] = imx219_mode_3280x2464_40fps,
++	[IMX219_MODE_1640x780_40FPS] = imx219_mode_1640x780_40fps,
++	[IMX219_MODE_1640x780_35FPS] = imx219_mode_1640x780_35fps,
++	[IMX219_MODE_1640x780_30FPS] = imx219_mode_1640x780_30fps,
++	[IMX219_MODE_1640x1232_40FPS] = imx219_mode_1640x1232_40fps,
+ 
+ 	[IMX219_MODE_COMMON]  = imx219_mode_common,
+ 	[IMX219_START_STREAM]  = imx219_start_stream,
+ 	[IMX219_STOP_STREAM]  = imx219_stop_stream,
+ };
+ 
+-static const int imx219_21fps[] = {
+-	21,
+-};
+-
+-static const int imx219_28fps[] = {
+-	28,
+-};
+-
+ static const int imx219_30fps[] = {
+ 	30,
+ };
+ 
+-static const int imx219_60fps[] = {
+-	60,
++static const int imx219_35fps[] = {
++	35,
+ };
+ 
+-static const int imx219_120fps[] = {
+-	120,
++static const int imx219_40fps[] = {
++	40,
+ };
+ 
+ /*
+@@ -338,12 +413,12 @@ static const int imx219_120fps[] = {
+  * device tree!
+  */
+ static const struct camera_common_frmfmt imx219_frmfmt[] = {
+-	{{3264, 2464},	imx219_21fps, 1, 0, IMX219_MODE_3264x2464_21FPS},
+-	/* Add modes with no device tree support after below */
+-	{{3264, 1848},	imx219_28fps, 1, 0, IMX219_MODE_3264x1848_28FPS},
+-	{{1920, 1080},	imx219_30fps, 1, 0, IMX219_MODE_1920x1080_30FPS},
+-	{{1280, 720},	imx219_60fps, 1, 0, IMX219_MODE_1280x720_60FPS},
+-	{{1280, 720},	imx219_120fps, 1, 0, IMX219_MODE_1280x720_120FPS},
++	{{3280, 1560}, imx219_40fps, 1, 0, IMX219_MODE_3280x1560_40FPS},
++	{{3280, 2464}, imx219_40fps, 1, 0, IMX219_MODE_3280x2464_40FPS},
++	{{1640,  780}, imx219_40fps, 1, 0, IMX219_MODE_1640x780_40FPS},
++	{{1640,  780}, imx219_35fps, 1, 0, IMX219_MODE_1640x780_35FPS},
++	{{1640,  780}, imx219_30fps, 1, 0, IMX219_MODE_1640x780_30FPS},
++	{{1640, 1232}, imx219_40fps, 1, 0, IMX219_MODE_1640x1232_40FPS},
+ };
+ 
+ #endif /* __IMX219_I2C_TABLES__ */
+diff --git a/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-camera-rbpcv2-imx219.dtsi b/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-camera-rbpcv2-imx219.dtsi
+index 7173747..c30a565 100644
+--- a/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-camera-rbpcv2-imx219.dtsi
++++ b/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-camera-rbpcv2-imx219.dtsi
+@@ -161,7 +161,7 @@
+ 				* Sensor embedded metadata height in units of rows.
+ 				* If sensor does not support embedded metadata value should be 0.
+ 				*/
+-				mode0 { /* IMX219_MODE_3264x2464_21FPS */
++				mode0 { /* IMX219_MODE_3280x1560_40FPS */
+ 					mclk_khz = "24000";
+ 					num_lanes = "2";
+ 					tegra_sinterface = "serial_a";
+@@ -170,14 +170,52 @@
+ 					dpcm_enable = "false";
+ 					cil_settletime = "0";
+ 
+-					active_w = "3264";
++					active_w = "3280";
++					active_h = "1560";
++					pixel_t = "bayer_rggb";
++					readout_orientation = "90";
++					line_length = "3560";
++					inherent_gain = "1";
++					mclk_multiplier = "9.33";
++					pix_clk_hz = "240000000";
++
++					gain_factor = "16";
++					framerate_factor = "1000000";
++					exposure_factor = "1000000";
++					min_gain_val = "16"; /* 1.00x */
++					max_gain_val = "170"; /* 10.66x */
++					step_gain_val = "1";
++					default_gain = "16"; /* 1.00x */
++					min_hdr_ratio = "1";
++					max_hdr_ratio = "1";
++					min_framerate = "2000000"; /* 2.0 fps */
++					max_framerate = "40000000"; /* 40.0 fps */
++					step_framerate = "1";
++					default_framerate = "40000000"; /* 40.0 fps */
++					min_exp_time = "13"; /* us */
++					max_exp_time = "683709"; /* us */
++					step_exp_time = "1";
++					default_exp_time = "2495"; /* us */
++
++					embedded_metadata_height = "2";
++				};
++				mode1 { /* IMX219_MODE_3280x2464_40FPS */
++					mclk_khz = "24000";
++					num_lanes = "2";
++					tegra_sinterface = "serial_a";
++					phy_mode = "DPHY";
++					discontinuous_clk = "yes";
++					dpcm_enable = "false";
++					cil_settletime = "0";
++
++					active_w = "3280";
+ 					active_h = "2464";
+ 					pixel_t = "bayer_rggb";
+ 					readout_orientation = "90";
+-					line_length = "3448";
++					line_length = "3560";
+ 					inherent_gain = "1";
+ 					mclk_multiplier = "9.33";
+-					pix_clk_hz = "182400000";
++					pix_clk_hz = "364800000";
+ 
+ 					gain_factor = "16";
+ 					framerate_factor = "1000000";
+@@ -189,9 +227,9 @@
+ 					min_hdr_ratio = "1";
+ 					max_hdr_ratio = "1";
+ 					min_framerate = "2000000"; /* 2.0 fps */
+-					max_framerate = "21000000"; /* 21.0 fps */
++					max_framerate = "40000000"; /* 40.0 fps */
+ 					step_framerate = "1";
+-					default_framerate = "21000000"; /* 21.0 fps */
++					default_framerate = "40000000"; /* 40.0 fps */
+ 					min_exp_time = "13"; /* us */
+ 					max_exp_time = "683709"; /* us */
+ 					step_exp_time = "1";
+@@ -199,7 +237,7 @@
+ 
+ 					embedded_metadata_height = "2";
+ 				};
+-				mode1 { /* IMX219_MODE_3264x1848_28FPS */
++				mode2 { /* IMX219_MODE_1640x780_40FPS */
+ 					mclk_khz = "24000";
+ 					num_lanes = "2";
+ 					tegra_sinterface = "serial_a";
+@@ -208,11 +246,11 @@
+ 					dpcm_enable = "false";
+ 					cil_settletime = "0";
+ 
+-					active_w = "3264";
+-					active_h = "1848";
++					active_w = "1640";
++					active_h = "780";
+ 					pixel_t = "bayer_rggb";
+ 					readout_orientation = "90";
+-					line_length = "3448";
++					line_length = "3520";
+ 					inherent_gain = "1";
+ 					mclk_multiplier = "9.33";
+ 					pix_clk_hz = "182400000";
+@@ -227,9 +265,9 @@
+ 					min_hdr_ratio = "1";
+ 					max_hdr_ratio = "1";
+ 					min_framerate = "2000000"; /* 2.0 fps */
+-					max_framerate = "28000000"; /* 28.0 fps */
++					max_framerate = "40000000"; /* 40.0 fps */
+ 					step_framerate = "1";
+-					default_framerate = "28000000"; /* 28.0 fps */
++					default_framerate = "40000000"; /* 40.0 fps */
+ 					min_exp_time = "13"; /* us */
+ 					max_exp_time = "683709"; /* us */
+ 					step_exp_time = "1";
+@@ -237,7 +275,7 @@
+ 
+ 					embedded_metadata_height = "2";
+ 				};
+-				mode2 { /* IMX219_MODE_1920x1080_30FPS */
++				mode3 { /* IMX219_MODE_1640x780_35FPS */
+ 					mclk_khz = "24000";
+ 					num_lanes = "2";
+ 					tegra_sinterface = "serial_a";
+@@ -246,11 +284,11 @@
+ 					dpcm_enable = "false";
+ 					cil_settletime = "0";
+ 
+-					active_w = "1920";
+-					active_h = "1080";
++					active_w = "1640";
++					active_h = "780";
+ 					pixel_t = "bayer_rggb";
+ 					readout_orientation = "90";
+-					line_length = "3448";
++					line_length = "3520";
+ 					inherent_gain = "1";
+ 					mclk_multiplier = "9.33";
+ 					pix_clk_hz = "182400000";
+@@ -265,9 +303,9 @@
+ 					min_hdr_ratio = "1";
+ 					max_hdr_ratio = "1";
+ 					min_framerate = "2000000"; /* 2.0 fps */
+-					max_framerate = "30000000"; /* 30.0 fps */
++					max_framerate = "35000000"; /* 35.0 fps */
+ 					step_framerate = "1";
+-					default_framerate = "30000000"; /* 30.0 fps */
++					default_framerate = "35000000"; /* 35.0 fps */
+ 					min_exp_time = "13"; /* us */
+ 					max_exp_time = "683709"; /* us */
+ 					step_exp_time = "1";
+@@ -275,7 +313,7 @@
+ 
+ 					embedded_metadata_height = "2";
+ 				};
+-				mode3 { /* IMX219_MODE_1280x720_60FPS */
++				mode4 { /* IMX219_MODE_1640x780_30FPS */
+ 					mclk_khz = "24000";
+ 					num_lanes = "2";
+ 					tegra_sinterface = "serial_a";
+@@ -284,11 +322,11 @@
+ 					dpcm_enable = "false";
+ 					cil_settletime = "0";
+ 
+-					active_w = "1280";
+-					active_h = "720";
++					active_w = "1640";
++					active_h = "780";
+ 					pixel_t = "bayer_rggb";
+ 					readout_orientation = "90";
+-					line_length = "3448";
++					line_length = "3520";
+ 					inherent_gain = "1";
+ 					mclk_multiplier = "9.33";
+ 					pix_clk_hz = "182400000";
+@@ -303,9 +341,9 @@
+ 					min_hdr_ratio = "1";
+ 					max_hdr_ratio = "1";
+ 					min_framerate = "2000000"; /* 2.0 fps */
+-					max_framerate = "60000000"; /* 60.0 fps */
++					max_framerate = "30000000"; /* 30.0 fps */
+ 					step_framerate = "1";
+-					default_framerate = "60000000"; /* 60.0 fps */
++					default_framerate = "30000000"; /* 30.0 fps */
+ 					min_exp_time = "13"; /* us */
+ 					max_exp_time = "683709"; /* us */
+ 					step_exp_time = "1";
+@@ -313,7 +351,7 @@
+ 
+ 					embedded_metadata_height = "2";
+ 				};
+-				mode4 { /* IMX219_MODE_1280x720_120FPS */
++        mode5 { /* IMX219_MODE_1640x1232_40FPS */
+ 					mclk_khz = "24000";
+ 					num_lanes = "2";
+ 					tegra_sinterface = "serial_a";
+@@ -322,14 +360,14 @@
+ 					dpcm_enable = "false";
+ 					cil_settletime = "0";
+ 
+-					active_w = "1280";
+-					active_h = "720";
++					active_w = "1640";
++					active_h = "1232";
+ 					pixel_t = "bayer_rggb";
+ 					readout_orientation = "90";
+-					line_length = "3448";
++					line_length = "3520";
+ 					inherent_gain = "1";
+ 					mclk_multiplier = "9.33";
+-					pix_clk_hz = "169600000";
++					pix_clk_hz = "182400000";
+ 
+ 					gain_factor = "16";
+ 					framerate_factor = "1000000";
+@@ -341,9 +379,9 @@
+ 					min_hdr_ratio = "1";
+ 					max_hdr_ratio = "1";
+ 					min_framerate = "2000000"; /* 2.0 fps */
+-					max_framerate = "120000000"; /* 120.0 fps */
++					max_framerate = "40000000"; /* 40.0 fps */
+ 					step_framerate = "1";
+-					default_framerate = "120000000"; /* 120.0 fps */
++					default_framerate = "40000000"; /* 40.0 fps */
+ 					min_exp_time = "13"; /* us */
+ 					max_exp_time = "683709"; /* us */
+ 					step_exp_time = "1";
+-- 
+2.23.0
+
